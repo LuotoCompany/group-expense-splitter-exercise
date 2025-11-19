@@ -20,17 +20,32 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+## Database (Drizzle ORM)
 
-To learn more about Next.js, take a look at the following resources:
+This project is configured to use [Drizzle ORM](https://orm.drizzle.team/) with Postgres in development.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Create a `.env.local` file in `frontend/` with at least:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+DATABASE_URL="postgres://postgres:postgres@localhost:5432/postgres"
+```
 
-## Deploy on Vercel
+2. Generate migrations from the TypeScript schema in `db/schema.ts`:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm drizzle:generate
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. Apply migrations to the database:
+
+```bash
+pnpm drizzle:migrate
+```
+
+4. Launch Drizzle Studio (dev only) to inspect data:
+
+```bash
+pnpm drizzle:studio
+```
+
+Only use these commands against development databases; do not point `DATABASE_URL` at production from your local `.env.local`.

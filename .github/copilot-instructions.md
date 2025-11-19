@@ -6,6 +6,8 @@ This repo is an **AI-assisted exercise project** for an Expense Splitter app wit
 - `frontend/`: a fresh `create-next-app` (App Router) shell where the final product will live and where new work should happen.
 - `.devcontainer/`: dev environment (Postgres, Redis, Node) — you can largely ignore infra details unless asked.
 
+Database persistence in `frontend/` is handled via **Drizzle ORM + Postgres**, using model-first migrations and Drizzle Studio for local inspection.
+
 ## Big Picture & Architecture
 
 - Treat `ui-proto/src/App.tsx` and its components as the **reference implementation** for UX, domain types, and client-side behavior; it is an example to copy from, not the final home for features.
@@ -25,8 +27,26 @@ This repo is an **AI-assisted exercise project** for an Expense Splitter app wit
   - Install: `cd frontend && pnpm install` (prefer `pnpm`; `package.json` is standard create-next-app).
   - Run dev server: `pnpm dev` → visit `http://localhost:3000`.
   - Entry point to customize: `frontend/app/page.tsx`.
+  - Database access (dev-only): use the `db` helper from `frontend/db/client.ts` in **server code only** (server components, server actions, route handlers). Do not import `db` into client components.
 - **Dev container:**
   - `.devcontainer/.env.example` defines Postgres/Redis defaults. Infra is pre-wired for future backend work; **you don’t need to add DB code unless explicitly asked.**
+
+### Database & Persistence (Drizzle ORM)
+
+- ORM: [`drizzle-orm`](https://orm.drizzle.team/) with Postgres, configured in `frontend/`.
+- Schema location: `frontend/db/schema.ts` defines tables using Drizzle's `pg-core` DSL. This file is the **single source of truth** for the DB schema.
+- DB client: `frontend/db/client.ts` creates a Node Postgres (`pg`) pool from `process.env.DATABASE_URL` and wraps it with Drizzle (`drizzle-orm/node-postgres`). It is marked server-only and must only be imported from server code.
+- Migrations:
+  - Config: `frontend/drizzle.config.ts` (`schema: "./db/schema.ts"`, `out: "./drizzle"`, `dialect: "postgresql"`, `dbCredentials.url` from `DATABASE_URL`).
+  - Generate SQL from models: `cd frontend && pnpm drizzle:generate`.
+  - Apply migrations to the DB: `cd frontend && pnpm drizzle:migrate`.
+- Drizzle Studio (dev only):
+  - Launch with `cd frontend && pnpm drizzle:studio`.
+  - Uses the same `DATABASE_URL` as the app; only point this at **development** databases.
+- Environment / secrets:
+  - All DB secrets (e.g., `DATABASE_URL`) are loaded from `.env`/`.env.local` and **never hard-coded**.
+  - Example dev URL (align with `.devcontainer/.env.example`): `DATABASE_URL="postgres://POSTGRES_USER:POSTGRES_PASSWORD@localhost:5432/POSTGRES_DB"`.
+  - Do **not** expose `DATABASE_URL` to the browser via `next.config.ts` or public env vars.
 
 ## Project-Specific Conventions
 
@@ -53,7 +73,7 @@ This repo is an **AI-assisted exercise project** for an Expense Splitter app wit
   - Keep layout responsive with the same grid/flex patterns used in `App.tsx` (e.g. `grid-cols-1 lg:grid-cols-2`).
 - **When touching environment/infra:**
   - Respect `.devcontainer/.env.example` variable names (`POSTGRES_USER`, `POSTGRES_DB`, etc.).
-  - If you introduce a backend or DB connection, **centralize connection config** via `DATABASE_URL`-style env vars and keep them consistent with the example connection string.
+  - If you introduce a backend or extend DB usage, **reuse the existing Drizzle setup** and centralize connection config via `DATABASE_URL`-style env vars, keeping them consistent with the example connection string.
 - **Testing & validation:**
   - There are no formal tests yet. Manually verify core flows in the running app: add person → add expense with splits → view balances → settle.
 
