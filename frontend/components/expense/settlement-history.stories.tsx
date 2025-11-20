@@ -24,6 +24,7 @@ const mockSettlements: Settlement[] = [
     to: '2',
     amount: 45.50,
     date: new Date('2024-11-19'),
+    createdAt: new Date('2024-11-19T10:00:00Z'),
   },
   {
     id: '2',
@@ -31,14 +32,20 @@ const mockSettlements: Settlement[] = [
     to: '1',
     amount: 23.00,
     date: new Date('2024-11-18'),
+    createdAt: new Date('2024-11-18T09:15:00Z'),
   },
 ];
+
+const asyncDelete = async (id: string) => {
+  await new Promise(resolve => setTimeout(resolve, 200));
+  console.log('Delete settlement:', id);
+};
 
 export const Default: Story = {
   args: {
     settlements: mockSettlements,
     people: mockPeople,
-    onDelete: (id) => console.log('Delete settlement:', id),
+    onDelete: asyncDelete,
   },
 };
 
@@ -46,7 +53,7 @@ export const Empty: Story = {
   args: {
     settlements: [],
     people: mockPeople,
-    onDelete: (id) => console.log('Delete settlement:', id),
+    onDelete: asyncDelete,
   },
 };
 
@@ -54,7 +61,7 @@ export const Single: Story = {
   args: {
     settlements: [mockSettlements[0]],
     people: mockPeople,
-    onDelete: (id) => console.log('Delete settlement:', id),
+    onDelete: asyncDelete,
   },
 };
 
@@ -68,6 +75,7 @@ export const Many: Story = {
         to: '3',
         amount: 67.25,
         date: new Date('2024-11-17'),
+        createdAt: new Date('2024-11-17T12:00:00Z'),
       },
       {
         id: '4',
@@ -75,6 +83,7 @@ export const Many: Story = {
         to: '3',
         amount: 12.50,
         date: new Date('2024-11-16'),
+        createdAt: new Date('2024-11-16T08:30:00Z'),
       },
       {
         id: '5',
@@ -82,10 +91,11 @@ export const Many: Story = {
         to: '1',
         amount: 89.00,
         date: new Date('2024-11-15'),
+        createdAt: new Date('2024-11-15T08:30:00Z'),
       },
     ],
     people: mockPeople,
-    onDelete: (id) => console.log('Delete settlement:', id),
+    onDelete: asyncDelete,
   },
 };
 
@@ -98,6 +108,7 @@ export const LargeAmounts: Story = {
         to: '2',
         amount: 1543.75,
         date: new Date('2024-11-19'),
+        createdAt: new Date('2024-11-19T07:30:00Z'),
       },
       {
         id: '2',
@@ -105,9 +116,10 @@ export const LargeAmounts: Story = {
         to: '1',
         amount: 892.50,
         date: new Date('2024-11-18'),
+        createdAt: new Date('2024-11-18T07:30:00Z'),
       },
     ],
     people: mockPeople,
-    onDelete: (id) => console.log('Delete settlement:', id),
+    onDelete: asyncDelete,
   },
 };

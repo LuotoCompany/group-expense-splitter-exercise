@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { DollarSign, Plus } from 'lucide-react';
+import { DollarSign, Loader2, Plus } from 'lucide-react';
 import type { Person, Expense } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,11 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { validateExpenseInput } from '@/lib/validations';
 
 export interface AddExpenseFormProps {
   people: Person[];
-  onSubmit: (expense: Omit<Expense, 'id' | 'date'>) => void;
-  onAddPerson: (name: string) => void;
+  onSubmit: (expense: Omit<Expense, 'id' | 'date'>) => Promise<{ success: boolean; error?: string }>;
   className?: string;
 }
 
@@ -31,13 +31,14 @@ export interface AddExpenseFormProps {
 export function AddExpenseForm({
   people,
   onSubmit,
-  onAddPerson,
   className,
 }: AddExpenseFormProps) {
   const [description, setDescription] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
   const [paidBy, setPaidBy] = useState('');
   const [splits, setSplits] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSplitChange = (personId: string, value: string) => {
     setSplits({ ...splits, [personId]: value });
@@ -55,14 +56,11 @@ export function AddExpenseForm({
     setSplits(newSplits);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
 
-    if (!description || !totalAmount || !paidBy) {
-      alert('Please fill in all required fields');
-      return;
-    }
-
+    const expenseTotal = parseFloat(totalAmount);
     const expenseSplits = Object.entries(splits)
       .map(([personId, amount]) => ({
         personId,
@@ -70,31 +68,43 @@ export function AddExpenseForm({
       }))
       .filter(split => split.amount > 0);
 
-    if (expenseSplits.length === 0) {
-      alert('Please add at least one split');
-      return;
-    }
-
-    const splitTotal = expenseSplits.reduce((sum, split) => sum + split.amount, 0);
-    const expenseTotal = parseFloat(totalAmount);
-
-    if (Math.abs(splitTotal - expenseTotal) > 0.01) {
-      alert(`Splits total ($${splitTotal.toFixed(2)}) must equal expense ($${expenseTotal.toFixed(2)})`);
-      return;
-    }
-
-    onSubmit({
+    const validation = validateExpenseInput({
       description,
       totalAmount: expenseTotal,
       paidBy,
       splits: expenseSplits,
     });
 
-    // Reset form
-    setDescription('');
-    setTotalAmount('');
-    setPaidBy('');
-    setSplits({});
+    if (!validation.valid) {
+      setFormError(validation.errors[0]);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const result = await onSubmit({
+        description: description.trim(),
+        totalAmount: expenseTotal,
+        paidBy,
+        splits: expenseSplits,
+      });
+
+      if (!result.success) {
+        setFormError(result.error ?? 'Failed to add expense.');
+        return;
+      }
+
+      setDescription('');
+      setTotalAmount('');
+      setPaidBy('');
+      setSplits({});
+    } catch (error) {
+      setFormError(
+        error instanceof Error ? error.message : 'Failed to add expense.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -107,7 +117,7 @@ export function AddExpenseForm({
         <CardDescription>Enter expense details and split amounts</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="add-expense-form" onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
             <Input
@@ -118,7 +128,7 @@ export function AddExpenseForm({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="totalAmount">Total Amount</Label>
               <Input
@@ -148,7 +158,7 @@ export function AddExpenseForm({
             </div>
           </div>
 
-          {people.length > 0 && (
+          {people.length > 0 ? (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>Split Between</Label>
@@ -180,6 +190,16 @@ export function AddExpenseForm({
                 ))}
               </div>
             </div>
+          ) : (
+            <p className="text-sm text-gray-500">
+              Add people to start splitting expenses.
+            </p>
+          )}
+
+          {formError && (
+            <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              {formError}
+            </div>
           )}
         </form>
       </CardContent>
@@ -192,13 +212,27 @@ export function AddExpenseForm({
             setTotalAmount('');
             setPaidBy('');
             setSplits({});
+            setFormError(null);
           }}
         >
           Clear
         </Button>
-        <Button onClick={handleSubmit}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Expense
+        <Button
+          type="submit"
+          form="add-expense-form"
+          disabled={isSubmitting || people.length === 0}
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Adding...
+            </>
+          ) : (
+            <>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Expense
+            </>
+          )}
         </Button>
       </CardFooter>
     </Card>

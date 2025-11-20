@@ -20,16 +20,20 @@ const mockPeople: Person[] = [
 export const Default: Story = {
   args: {
     people: mockPeople,
-    onSubmit: (expense) => console.log('Add expense:', expense),
-    onAddPerson: (name) => console.log('Add person:', name),
+    onSubmit: async (expense) => {
+      console.log('Add expense:', expense);
+      return { success: true };
+    },
   },
 };
 
 export const TwoPeople: Story = {
   args: {
     people: mockPeople.slice(0, 2),
-    onSubmit: (expense) => console.log('Add expense:', expense),
-    onAddPerson: (name) => console.log('Add person:', name),
+    onSubmit: async (expense) => {
+      console.log('Add expense:', expense);
+      return { success: true };
+    },
   },
 };
 
@@ -41,15 +45,19 @@ export const ManyPeople: Story = {
       { id: '5', name: 'Eve' },
       { id: '6', name: 'Frank' },
     ],
-    onSubmit: (expense) => console.log('Add expense:', expense),
-    onAddPerson: (name) => console.log('Add person:', name),
+    onSubmit: async (expense) => {
+      console.log('Add expense:', expense);
+      return { success: true };
+    },
   },
 };
 
 export const NoPeople: Story = {
   args: {
     people: [],
-    onSubmit: (expense) => console.log('Add expense:', expense),
-    onAddPerson: (name) => console.log('Add person:', name),
+    onSubmit: async (expense) => {
+      console.log('Add expense:', expense);
+      return { success: true };
+    },
   },
 };

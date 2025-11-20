@@ -1,15 +1,16 @@
 "use client";
 
-import { Trash2, Image } from 'lucide-react';
+import { Trash2, Image as ImageIcon, Loader2 } from 'lucide-react';
 import type { Expense, Person } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 export interface ExpenseCardProps {
   expense: Expense;
   people: Person[];
-  onDelete: (id: string) => void;
+  onDelete: (id: string) => void | Promise<void>;
   onReceiptClick?: (image: string) => void;
   className?: string;
+  isDeleting?: boolean;
 }
 
 /**
@@ -28,6 +29,7 @@ export function ExpenseCard({
   onDelete,
   onReceiptClick,
   className,
+  isDeleting = false,
 }: ExpenseCardProps) {
   const getPersonName = (personId: string) => {
     return people.find(p => p.id === personId)?.name || 'Unknown';
@@ -50,7 +52,7 @@ export function ExpenseCard({
                 className="text-indigo-600 hover:text-indigo-700 transition-colors"
                 aria-label="View receipt"
               >
-                <Image className="w-4 h-4" />
+                <ImageIcon className="w-4 h-4" aria-hidden="true" />
               </button>
             )}
           </div>
@@ -62,10 +64,15 @@ export function ExpenseCard({
           <span className="text-indigo-600">${expense.totalAmount.toFixed(2)}</span>
           <button
             onClick={() => onDelete(expense.id)}
-            className="text-red-500 hover:text-red-600 transition-colors"
+            className="text-red-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             aria-label="Delete expense"
+            disabled={isDeleting}
           >
-            <Trash2 className="w-4 h-4" />
+            {isDeleting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Trash2 className="w-4 h-4" />
+            )}
           </button>
         </div>
       </div>

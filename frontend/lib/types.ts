@@ -1,6 +1,7 @@
 export interface Person {
   id: string;
   name: string;
+  createdAt?: Date;
 }
 
 export interface Split {
@@ -24,6 +25,7 @@ export interface Settlement {
   to: string;
   amount: number;
   date: Date;
+  createdAt?: Date;
 }
 
 export interface Balance {

@@ -56,6 +56,15 @@ export const WithoutRemove: Story = {
   },
 };
 
+export const BusyState: Story = {
+  args: {
+    people: mockPeople,
+    onAdd: (name) => console.log('Add person:', name),
+    isBusy: true,
+    statusMessage: 'Saving...',
+  },
+};
+
 export const SinglePerson: Story = {
   render: () => {
     const [people, setPeople] = useState([mockPeople[0]]);

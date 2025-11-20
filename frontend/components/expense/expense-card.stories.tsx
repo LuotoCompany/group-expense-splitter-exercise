@@ -125,6 +125,15 @@ export const TwoPeople: Story = {
   },
 };
 
+export const Deleting: Story = {
+  args: {
+    expense: mockExpense,
+    people: mockPeople,
+    onDelete: (id) => console.log('Delete expense:', id),
+    isDeleting: true,
+  },
+};
+
 export const Multiple: Story = {
   render: () => (
     <div className="space-y-3 max-w-2xl">

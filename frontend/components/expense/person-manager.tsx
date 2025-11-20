@@ -1,16 +1,19 @@
 "use client";
 
-import { useState } from 'react';
-import { UserPlus, X } from 'lucide-react';
-import type { Person } from '@/lib/types';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { useState } from "react";
+import { Loader2, UserPlus, X } from "lucide-react";
+import type { Person } from "@/lib/types";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export interface PersonManagerProps {
   people: Person[];
   onAdd: (name: string) => void;
   onRemove?: (id: string) => void;
+  isBusy?: boolean;
+  statusMessage?: string | null;
+  errorMessage?: string | null;
   className?: string;
 }
 
@@ -26,17 +29,19 @@ export function PersonManager({
   people,
   onAdd,
   onRemove,
+  isBusy,
+  statusMessage,
+  errorMessage,
   className,
 }: PersonManagerProps) {
-  const [newPersonName, setNewPersonName] = useState('');
+  const [newPersonName, setNewPersonName] = useState("");
   const [showAddPerson, setShowAddPerson] = useState(false);
 
   const handleAddPerson = () => {
-    if (newPersonName.trim()) {
-      onAdd(newPersonName.trim());
-      setNewPersonName('');
-      setShowAddPerson(false);
-    }
+    if (!newPersonName.trim() || isBusy) return;
+    onAdd(newPersonName.trim());
+    setNewPersonName("");
+    setShowAddPerson(false);
   };
 
   return (
@@ -49,8 +54,13 @@ export function PersonManager({
             size="sm"
             variant="outline"
             className="flex items-center gap-2"
+            disabled={isBusy}
           >
-            <UserPlus className="w-4 h-4" />
+            {isBusy ? (
+              <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <UserPlus className="w-4 h-4" aria-hidden="true" />
+            )}
             Add Person
           </Button>
         )}
@@ -58,19 +68,20 @@ export function PersonManager({
 
       {people.length > 0 && (
         <div className="space-y-2">
-          {people.map(person => (
+          {people.map((person) => (
             <div
               key={person.id}
-              className="flex items-center justify-between p-2 border border-gray-200 rounded-md"
+              className="flex items-center justify-between rounded-md border border-gray-200 p-2"
             >
               <span className="text-gray-900">{person.name}</span>
               {onRemove && (
                 <button
                   onClick={() => onRemove(person.id)}
-                  className="text-red-500 hover:text-red-600 transition-colors"
+                  className="text-red-500 transition-colors hover:text-red-600 disabled:cursor-not-allowed disabled:text-gray-400"
                   aria-label={`Remove ${person.name}`}
+                  disabled={isBusy}
                 >
-                  <X className="w-4 h-4" />
+                  <X className="h-4 w-4" />
                 </button>
               )}
             </div>
@@ -85,25 +96,27 @@ export function PersonManager({
             onChange={(e) => setNewPersonName(e.target.value)}
             placeholder="Enter name"
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
+              if (e.key === "Enter") {
                 handleAddPerson();
-              } else if (e.key === 'Escape') {
+              } else if (e.key === "Escape") {
                 setShowAddPerson(false);
-                setNewPersonName('');
+                setNewPersonName("");
               }
             }}
             autoFocus
+            disabled={isBusy}
           />
-          <Button onClick={handleAddPerson} size="sm">
+          <Button onClick={handleAddPerson} size="sm" disabled={isBusy || !newPersonName.trim()}>
             Add
           </Button>
           <Button
             onClick={() => {
               setShowAddPerson(false);
-              setNewPersonName('');
+              setNewPersonName("");
             }}
             size="sm"
             variant="outline"
+            disabled={isBusy}
           >
             Cancel
           </Button>
@@ -111,8 +124,16 @@ export function PersonManager({
       )}
 
       {people.length === 0 && !showAddPerson && (
-        <p className="text-gray-500 text-sm">No people added yet</p>
+        <p className="text-sm text-gray-500">No people added yet</p>
       )}
+
+      <div className="min-h-5 text-sm" aria-live="polite" role="status">
+        {errorMessage ? (
+          <span className="text-red-600">{errorMessage}</span>
+        ) : statusMessage ? (
+          <span className="text-gray-600">{statusMessage}</span>
+        ) : null}
+      </div>
     </div>
   );
 }
