@@ -124,12 +124,28 @@ Example: `import { db } from "@/db/client"`
 - Improving UX (toasts, modals) is a secondary task unless explicitly requested
 
 ## Testing
-- No formal tests currently exist
-- Manually verify core flows:
-  1. Add person
-  2. Add expense with splits
-  3. View balances
-  4. Settle debts
+
+The repo uses Vitest for unit/component verification and Playwright for end-to-end smoke checks.
+
+### Definition of Done
+1. **Domain logic** – Any new or modified helpers in `frontend/lib/**` require a matching Vitest unit test (`pnpm test:unit`).
+2. **UI components** – Interactive React components should include a component test (or story-driven test) when their behavior changes (`pnpm test:component` or `pnpm test:storybook`).
+3. **End-to-end flows** – Features that span multiple screens or affect primary user journeys must include/extend a Playwright spec under `frontend/e2e/**` (`pnpm test:e2e`).
+4. **Coverage** – Keep `frontend/lib/**` unit coverage ≥80% lines. Use `pnpm test:coverage` locally before sending a PR that touches shared logic.
+5. **Linting** – `pnpm lint` must succeed with no new warnings/errors before merging changes.
+
+### Commands & Workflow
+- `pnpm test:unit` – Vitest project for utilities/domain helpers (jsdom env, RTL setup in `test/setup.ts`).
+- `pnpm test:component` – Component-focused Vitest project for React components.
+- `pnpm test:storybook` – Runs Storybook stories through Vitest + `@storybook/test-runner`.
+- `pnpm test:watch` / `pnpm test:ui` – Interactive Vitest watch modes.
+- `pnpm test:e2e` / `pnpm test:e2e:ui` – Playwright smoke and interactive modes (chromium, auto-starts dev server).
+
+Smoke coverage lives in:
+- `frontend/lib/utils.test.ts` – ensures Vitest setup works.
+- `frontend/e2e/smoke.spec.ts` – verifies the app renders and primary CTAs load.
+
+When touching flows like “Add person”, “Add expense”, “View balances”, or “Settle debts”, rely on Playwright specs instead of manual-only verification.
 
 ## Environment Setup
 

@@ -1,4 +1,5 @@
 import type { Preview } from '@storybook/nextjs-vite'
+import React from 'react'
 
 import '../app/globals.css';
 
@@ -18,6 +19,14 @@ const preview: Preview = {
       test: 'todo'
     }
   },
+
+  decorators: [
+    (Story) => (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default preview;

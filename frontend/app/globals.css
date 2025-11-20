@@ -10,6 +10,45 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Indigo palette for primary brand colors */
+  --color-indigo-50: oklch(.962 .018 272.314);
+  --color-indigo-100: oklch(.93 .034 272.788);
+  --color-indigo-200: oklch(.87 .065 274.039);
+  --color-indigo-300: oklch(.785 .115 274.713);
+  --color-indigo-400: oklch(.673 .182 276.935);
+  --color-indigo-500: oklch(.585 .233 277.117);
+  --color-indigo-600: oklch(.511 .262 276.966);
+  --color-indigo-700: oklch(.457 .24 277.023);
+  --color-indigo-900: oklch(.359 .144 278.697);
+
+  /* Gray palette for neutral UI elements */
+  --color-gray-100: oklch(.967 .003 264.542);
+  --color-gray-200: oklch(.928 .006 264.531);
+  --color-gray-300: oklch(.872 .01 258.338);
+  --color-gray-400: oklch(.707 .022 261.325);
+  --color-gray-500: oklch(.551 .027 264.364);
+  --color-gray-600: oklch(.446 .03 256.802);
+  --color-gray-700: oklch(.373 .034 259.733);
+  --color-gray-900: oklch(.21 .034 264.665);
+
+  /* Green palette for success states */
+  --color-green-50: oklch(.982 .018 155.826);
+  --color-green-200: oklch(.925 .084 155.995);
+  --color-green-500: oklch(.723 .219 149.579);
+  --color-green-600: oklch(.627 .194 149.214);
+  --color-green-700: oklch(.527 .154 150.069);
+
+  /* Red palette for error/delete states */
+  --color-red-500: oklch(.637 .237 25.331);
+  --color-red-600: oklch(.577 .245 27.325);
+
+  /* Blue for backgrounds */
+  --color-blue-50: oklch(.97 .014 254.604);
+
+  /* Additional utilities */
+  --color-black: #000;
+  --color-white: #fff;
 }
 
 @media (prefers-color-scheme: dark) {

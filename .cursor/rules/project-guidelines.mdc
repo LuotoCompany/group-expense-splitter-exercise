@@ -1,0 +1,32 @@
+---
+description: Project-wide workflow, testing, and linting Definition of Done
+alwaysApply: true
+---
+
+# Expense Splitter Rules
+
+## Primary context
+- Build all product work inside `frontend/` (Next.js 16). Treat `ui-proto/` as read-only reference material.
+- Use the `@/*` TypeScript alias for absolute imports rooted at `frontend/`.
+- Database utilities under `frontend/db/**` are server-only. Never import `db` in client components.
+- Tailwind CSS v4 utilities are the standard styling approach. Reuse class patterns from `ui-proto` for consistency.
+
+## Definition of Done (matches `CLAUDE.md`)
+1. **Domain helpers** – Any change in `frontend/lib/**` must include/modify a Vitest unit test (`pnpm test:unit`).
+2. **UI components** – Behavioral changes require a component or story-driven test (`pnpm test:component` or `pnpm test:storybook`).
+3. **End-to-end flows** – Multi-screen journeys need a Playwright spec in `frontend/e2e/**` (`pnpm test:e2e` or `pnpm test:e2e:ui`).
+4. **Coverage** – Keep shared utilities at ≥80 % line coverage. Run `pnpm test:coverage` before submitting logic-heavy PRs.
+5. **Linting** – `pnpm lint` must succeed with zero new warnings/errors prior to merge.
+
+## Testing & tooling commands
+- `pnpm test:unit` – Vitest + RTL for utilities/domain helpers (jsdom, `test/setup.ts`).
+- `pnpm test:component` – Component-focused Vitest suite.
+- `pnpm test:storybook` – Storybook-driven tests via `@storybook/addon-vitest`.
+- `pnpm test:e2e` / `pnpm test:e2e:ui` – Playwright smoke/E2E (Chromium, dev server auto-starts on port 3100 unless overridden).
+- `pnpm test:coverage` – Coverage reporting for shared logic.
+- `pnpm lint` – ESLint gate; treat failures/warnings as blockers.
+
+## Workflow reminders
+- Maintain the existing smoke tests: `frontend/lib/utils.test.ts` (unit) and `frontend/e2e/smoke.spec.ts` (E2E). Extend them when foundational behaviors change.
+- Update Storybook stories in `frontend/stories/**` whenever component APIs or visuals change meaningfully.
+- Use `pnpm` inside `frontend/` and `npm` inside `ui-proto/`; never mix lockfiles between apps.
