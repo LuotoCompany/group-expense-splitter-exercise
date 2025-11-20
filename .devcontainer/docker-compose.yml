@@ -6,7 +6,10 @@ services:
     volumes:
       - ../:/workspace:cached
     command: sleep infinity
-    network_mode: service:postgres
+    networks:
+      - devnet
+    ports:
+      - "3000:3000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -14,18 +17,18 @@ services:
         condition: service_healthy
     environment:
       # Database configuration
-      POSTGRES_HOST: localhost
+      POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-expense_splitter_dev}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@localhost:5432/${POSTGRES_DB:-expense_splitter_dev}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-expense_splitter_dev}
 
       # Redis configuration
-      REDIS_HOST: localhost
+      REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
-      REDIS_URL: redis://:${REDIS_PASSWORD:-}@localhost:6379
+      REDIS_URL: redis://:${REDIS_PASSWORD:-}@redis:6379
 
       # Node environment
       NODE_ENV: development
@@ -33,6 +36,8 @@ services:
   postgres:
     image: postgres:18-alpine
     restart: unless-stopped
+    networks:
+      - devnet
     volumes:
       - postgres-data:/var/lib/postgresql/data
     environment:
@@ -56,6 +61,8 @@ services:
   redis:
     image: redis:8.4-alpine
     restart: unless-stopped
+    networks:
+      - devnet
     volumes:
       - redis-data:/data
     command:
@@ -68,7 +75,8 @@ services:
       - 256mb
       - --maxmemory-policy
       - allkeys-lru
-    network_mode: service:postgres
+    ports:
+      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -79,6 +87,10 @@ services:
       resources:
         limits:
           memory: 256M
+
+networks:
+  devnet:
+    driver: bridge
 
 volumes:
   postgres-data:
