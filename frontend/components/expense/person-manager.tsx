@@ -1,138 +1,155 @@
 "use client";
 
-import { useState } from "react";
-import { Loader2, UserPlus, X } from "lucide-react";
-import type { Person } from "@/lib/types";
-import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import type { ActionResponse, Person } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { Loader2, Trash2, User, UserPlus } from "lucide-react";
+import { useState, useTransition } from "react";
 
 export interface PersonManagerProps {
   people: Person[];
-  onAdd: (name: string) => void;
-  onRemove?: (id: string) => void;
-  isBusy?: boolean;
-  statusMessage?: string | null;
-  errorMessage?: string | null;
+  onAdd: (name: string) => Promise<ActionResponse>;
+  onRemove: (id: string) => Promise<ActionResponse>;
   className?: string;
 }
 
-/**
- * PersonManager allows adding and removing people from the group.
- *
- * Features:
- * - List of current people
- * - Input to add new person
- * - Optional remove button for each person
- */
 export function PersonManager({
   people,
   onAdd,
   onRemove,
-  isBusy,
-  statusMessage,
-  errorMessage,
   className,
 }: PersonManagerProps) {
   const [newPersonName, setNewPersonName] = useState("");
-  const [showAddPerson, setShowAddPerson] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  
+  // Track which specific person is being deleted
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const handleAddPerson = () => {
-    if (!newPersonName.trim() || isBusy) return;
-    onAdd(newPersonName.trim());
-    setNewPersonName("");
-    setShowAddPerson(false);
+  const handleAddPerson = async () => {
+    const name = newPersonName.trim();
+    if (!name) return;
+    
+    setError(null);
+    
+    startTransition(async () => {
+      const result = await onAdd(name);
+      if (result.success) {
+        setNewPersonName("");
+      } else {
+        setError(result.error || "Failed to add person");
+      }
+    });
+  };
+
+  const handleRemovePerson = async (id: string) => {
+    setError(null);
+    setDeletingId(id);
+    
+    // We don't wrap this in startTransition for the deletingId state to work immediately
+    // But the actual action is async
+    try {
+      const result = await onRemove(id);
+      if (!result.success) {
+        setError(result.error || "Failed to remove person");
+      }
+    } catch (e) {
+      setError("An unexpected error occurred");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddPerson();
+    }
   };
 
   return (
-    <div className={cn("space-y-3", className)}>
-      <div className="flex items-center justify-between">
-        <h3 className="text-gray-900 font-medium">People</h3>
-        {!showAddPerson && (
-          <Button
-            onClick={() => setShowAddPerson(true)}
-            size="sm"
-            variant="outline"
-            className="flex items-center gap-2"
-            disabled={isBusy}
+    <div className={cn("space-y-6", className)}>
+      <div className="space-y-4">
+        <label className="text-sm font-medium leading-none text-gray-700 peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          Add New Person
+        </label>
+        <div className="flex gap-3">
+          <div className="relative flex-1">
+            <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={newPersonName}
+              onChange={(e) => setNewPersonName(e.target.value)}
+              placeholder="Enter name (e.g. Alice)"
+              onKeyDown={handleKeyDown}
+              className="pl-9"
+              disabled={isPending}
+            />
+          </div>
+          <Button 
+            onClick={handleAddPerson} 
+            disabled={isPending || !newPersonName.trim()}
+            className="min-w-[100px]"
           >
-            {isBusy ? (
-              <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+            {isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <UserPlus className="w-4 h-4" aria-hidden="true" />
+              <UserPlus className="mr-2 h-4 w-4" />
             )}
-            Add Person
-          </Button>
-        )}
-      </div>
-
-      {people.length > 0 && (
-        <div className="space-y-2">
-          {people.map((person) => (
-            <div
-              key={person.id}
-              className="flex items-center justify-between rounded-md border border-gray-200 p-2"
-            >
-              <span className="text-gray-900">{person.name}</span>
-              {onRemove && (
-                <button
-                  onClick={() => onRemove(person.id)}
-                  className="text-red-500 transition-colors hover:text-red-600 disabled:cursor-not-allowed disabled:text-gray-400"
-                  aria-label={`Remove ${person.name}`}
-                  disabled={isBusy}
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {showAddPerson && (
-        <div className="flex gap-2">
-          <Input
-            value={newPersonName}
-            onChange={(e) => setNewPersonName(e.target.value)}
-            placeholder="Enter name"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleAddPerson();
-              } else if (e.key === "Escape") {
-                setShowAddPerson(false);
-                setNewPersonName("");
-              }
-            }}
-            autoFocus
-            disabled={isBusy}
-          />
-          <Button onClick={handleAddPerson} size="sm" disabled={isBusy || !newPersonName.trim()}>
             Add
           </Button>
-          <Button
-            onClick={() => {
-              setShowAddPerson(false);
-              setNewPersonName("");
-            }}
-            size="sm"
-            variant="outline"
-            disabled={isBusy}
-          >
-            Cancel
-          </Button>
         </div>
+      </div>
+
+      {error && (
+        <Alert variant="destructive" className="py-2">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
-      {people.length === 0 && !showAddPerson && (
-        <p className="text-sm text-gray-500">No people added yet</p>
-      )}
-
-      <div className="min-h-5 text-sm" aria-live="polite" role="status">
-        {errorMessage ? (
-          <span className="text-red-600">{errorMessage}</span>
-        ) : statusMessage ? (
-          <span className="text-gray-600">{statusMessage}</span>
-        ) : null}
+      <div className="space-y-2">
+        <label className="text-sm font-medium leading-none text-gray-700">
+          Group Members ({people.length})
+        </label>
+        
+        {people.length === 0 ? (
+          <div className="rounded-lg border border-dashed p-8 text-center text-sm text-gray-500">
+            No people in this group yet. Add someone above to get started.
+          </div>
+        ) : (
+          <div className="grid gap-2 sm:grid-cols-2">
+            {people.map((person) => (
+              <div
+                key={person.id}
+                className="group flex items-center justify-between rounded-lg border bg-card p-3 shadow-sm transition-all hover:shadow-md"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700">
+                    {person.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="font-medium text-gray-900">{person.name}</span>
+                </div>
+                
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-gray-400 opacity-0 transition-opacity hover:text-red-600 group-hover:opacity-100"
+                  onClick={() => handleRemovePerson(person.id)}
+                  disabled={deletingId === person.id}
+                  title="Remove person"
+                >
+                  {deletingId === person.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
+                  <span className="sr-only">Remove {person.name}</span>
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

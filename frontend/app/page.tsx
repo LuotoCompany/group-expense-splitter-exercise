@@ -3,6 +3,7 @@ import { Receipt } from "lucide-react";
 import { listExpenses } from "@/app/actions/expenses";
 import { listPeople } from "@/app/actions/people";
 import { ExpenseManager } from "@/components/expense/expense-manager";
+import { PeopleManagerDialog } from "@/components/expense/people-manager-dialog";
 
 export default async function Home() {
   const [people, expenses] = await Promise.all([listPeople(), listExpenses()]);
@@ -26,10 +27,13 @@ export default async function Home() {
                 Add detailed expenses, assign who paid, and make sure every split balances.
               </p>
             </div>
-            <div className="rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
-              {people.length === 0
-                ? "Add people to start tracking expenses."
-                : `${people.length} ${people.length === 1 ? "person" : "people"} in this group`}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
+                {people.length === 0
+                  ? "Add people to start tracking expenses."
+                  : `${people.length} ${people.length === 1 ? "person" : "people"} in this group`}
+              </div>
+              <PeopleManagerDialog people={people} />
             </div>
           </div>
         </header>
@@ -37,10 +41,6 @@ export default async function Home() {
         <div className="rounded-2xl bg-white p-6 shadow-sm">
           <ExpenseManager people={people} expenses={expenses} />
         </div>
-      </div>
-    </main>
-  );
-}
       </div>
     </main>
   );
