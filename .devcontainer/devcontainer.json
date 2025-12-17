@@ -32,6 +32,12 @@
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
 
+  // Forward host SSH agent into the container for git/ssh auth
+  "mounts": ["source=${localEnv:SSH_AUTH_SOCK},target=/ssh-agent,type=bind"],
+  "remoteEnv": {
+    "SSH_AUTH_SOCK": "/ssh-agent"
+  },
+
   // Use 'forwardPorts' to make a list of ports inside the container available locally
   "forwardPorts": [3000, 5432, 6379],
 
