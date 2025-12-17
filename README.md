@@ -7,7 +7,7 @@ This repo contains an exercise project for a **Group Expense Splitter** app, wit
 - `frontend/` – Next.js app (App Router) and future production code.
 - `ui-proto/` – Vite + React **design prototype** for UX and domain behavior.
 - `.devcontainer/` – Dev container setup (Postgres, Redis, Node).
-- `.github/` – GitHub configuration (e.g. Copilot instructions, workflows).
+- `.github/` – GitHub configuration (workflows, etc.).
 - `flake.nix` – Optional Nix flake for setting up the dev environment.
 
 ## Getting Started
