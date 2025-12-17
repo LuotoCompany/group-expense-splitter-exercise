@@ -1,5 +1,3 @@
-<<<<<<< Current (Your changes)
-=======
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 --> statement-breakpoint
 CREATE TABLE "expenses" (
@@ -33,4 +31,3 @@ CREATE UNIQUE INDEX "people_name_unique_idx" ON "people" USING btree ("name");--
 CREATE INDEX "people_created_at_idx" ON "people" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "splits_expense_id_idx" ON "splits" USING btree ("expense_id");--> statement-breakpoint
 CREATE INDEX "splits_person_id_idx" ON "splits" USING btree ("person_id");
->>>>>>> Incoming (Background Agent changes)
