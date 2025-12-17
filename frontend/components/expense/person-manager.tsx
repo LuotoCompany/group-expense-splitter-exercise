@@ -11,7 +11,7 @@ import { useState, useTransition } from "react";
 export interface PersonManagerProps {
   people: Person[];
   onAdd: (name: string) => Promise<ActionResponse>;
-  onRemove: (id: string) => Promise<ActionResponse>;
+  onRemove: (id: number) => Promise<ActionResponse>;
   className?: string;
 }
 
@@ -26,7 +26,7 @@ export function PersonManager({
   const [error, setError] = useState<string | null>(null);
   
   // Track which specific person is being deleted
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const handleAddPerson = async () => {
     const name = newPersonName.trim();
@@ -44,7 +44,7 @@ export function PersonManager({
     });
   };
 
-  const handleRemovePerson = async (id: string) => {
+  const handleRemovePerson = async (id: number) => {
     setError(null);
     setDeletingId(id);
     
@@ -55,8 +55,6 @@ export function PersonManager({
       if (!result.success) {
         setError(result.error || "Failed to remove person");
       }
-    } catch (e) {
-      setError("An unexpected error occurred");
     } finally {
       setDeletingId(null);
     }

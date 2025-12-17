@@ -52,9 +52,9 @@ const toDateOnly = (value?: string | Date): Date => {
 };
 
 const mapSettlement = (row: SettlementRow): Settlement => ({
-  id: row.id.toString(),
-  from: row.fromPersonId.toString(),
-  to: row.toPersonId.toString(),
+  id: row.id,
+  from: row.fromPersonId,
+  to: row.toPersonId,
   amount: Number(row.amount),
   date: new Date(row.date),
   createdAt: row.createdAt ?? new Date(row.date),

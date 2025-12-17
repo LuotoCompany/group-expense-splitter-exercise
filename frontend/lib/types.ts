@@ -1,36 +1,36 @@
 export interface Person {
-  id: string;
+  id: number;
   name: string;
   createdAt?: Date;
 }
 
 export interface Split {
-  personId: string;
+  personId: number;
   amount: number;
 }
 
 export interface Expense {
-  id: string;
+  id: number;
   description: string;
   totalAmount: number;
-  paidBy: string;
+  paidBy: number;
   splits: Split[];
   date: Date;
   receiptImage?: string;
 }
 
 export interface Settlement {
-  id: string;
-  from: string;
-  to: string;
+  id: number;
+  from: number;
+  to: number;
   amount: number;
   date: Date;
   createdAt?: Date;
 }
 
 export interface Balance {
-  fromId: string;
-  toId: string;
+  fromId: number;
+  toId: number;
   amount: number;
 }
 
