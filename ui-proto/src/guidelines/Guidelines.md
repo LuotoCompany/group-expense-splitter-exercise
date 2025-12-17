@@ -7,7 +7,7 @@
 - Database code under `frontend/db/**` is server-only; never import `db` into client components.
 - Tailwind CSS v4 utility classes are standard for styling. Reuse class patterns from `ui-proto` for consistency.
 
-## Definition of Done (mirrors `CLAUDE.md`)
+## Definition of Done (mirrors `AGENTS.md`)
 
 1. **Domain helpers**: Any change under `frontend/lib/**` needs a Vitest unit test (`pnpm test:unit`).
 2. **UI components**: Behavior changes require component or story-driven tests (`pnpm test:component` or `pnpm test:storybook`).
