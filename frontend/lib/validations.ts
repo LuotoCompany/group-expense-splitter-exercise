@@ -1,14 +1,14 @@
 export const SPLIT_TOLERANCE = 0.01;
 
 export interface SplitAmountInput {
-  personId: string;
+  personId: number;
   amount: number;
 }
 
 export interface ExpenseValidationInput {
   description: string;
   totalAmount: number;
-  paidBy: string;
+  paidBy: number;
   splits: SplitAmountInput[];
 }
 

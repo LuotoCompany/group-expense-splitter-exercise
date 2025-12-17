@@ -1,35 +1,33 @@
 import {
+  check,
+  date,
   index,
+  integer,
   numeric,
   pgTable,
+  serial,
   text,
   timestamp,
-  uuid,
   varchar,
-  uniqueIndex,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 export const people = pgTable(
   "people",
   {
-    id: uuid("id").primaryKey().defaultRandom(),
-    name: varchar("name", { length: 255 }).notNull(),
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 255 }).notNull().unique(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-  },
-  table => ({
-    nameUniqueIdx: uniqueIndex("people_name_unique_idx").on(table.name),
-    createdAtIdx: index("people_created_at_idx").on(table.createdAt),
-  })
+  }
 );
 
 export const expenses = pgTable(
   "expenses",
   {
-    id: uuid("id").primaryKey().defaultRandom(),
+    id: serial("id").primaryKey(),
     description: text("description").notNull(),
     totalAmount: numeric("total_amount", { precision: 10, scale: 2 }).notNull(),
-    paidBy: uuid("paid_by")
+    paidBy: integer("paid_by")
       .notNull()
       .references(() => people.id, { onDelete: "restrict" }),
     date: timestamp("date").defaultNow().notNull(),
@@ -44,11 +42,11 @@ export const expenses = pgTable(
 export const splits = pgTable(
   "splits",
   {
-    id: uuid("id").primaryKey().defaultRandom(),
-    expenseId: uuid("expense_id")
+    id: serial("id").primaryKey(),
+    expenseId: integer("expense_id")
       .notNull()
       .references(() => expenses.id, { onDelete: "cascade" }),
-    personId: uuid("person_id")
+    personId: integer("person_id")
       .notNull()
       .references(() => people.id, { onDelete: "restrict" }),
     amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
@@ -59,9 +57,33 @@ export const splits = pgTable(
   })
 );
 
+export const settlements = pgTable(
+  "settlements",
+  {
+    id: serial("id").primaryKey(),
+    fromPersonId: integer("from_person_id")
+      .notNull()
+      .references(() => people.id, { onDelete: "restrict", onUpdate: "cascade" }),
+    toPersonId: integer("to_person_id")
+      .notNull()
+      .references(() => people.id, { onDelete: "restrict", onUpdate: "cascade" }),
+    amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+    date: date("date").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  table => ({
+    fromPersonIdx: index("settlements_from_person_idx").on(table.fromPersonId),
+    toPersonIdx: index("settlements_to_person_idx").on(table.toPersonId),
+    amountPositive: check("settlements_amount_positive", sql`${table.amount} > 0`),
+    distinctParticipants: check("settlements_distinct_participants", sql`${table.fromPersonId} <> ${table.toPersonId}`),
+  })
+);
+
 export const peopleRelations = relations(people, ({ many }) => ({
   paidExpenses: many(expenses, { relationName: "expensePaidBy" }),
   splits: many(splits),
+  settlementsFrom: many(settlements, { relationName: "settlementFrom" }),
+  settlementsTo: many(settlements, { relationName: "settlementTo" }),
 }));
 
 export const expensesRelations = relations(expenses, ({ one, many }) => ({
@@ -81,5 +103,18 @@ export const splitsRelations = relations(splits, ({ one }) => ({
   person: one(people, {
     fields: [splits.personId],
     references: [people.id],
+  }),
+}));
+
+export const settlementsRelations = relations(settlements, ({ one }) => ({
+  fromPerson: one(people, {
+    fields: [settlements.fromPersonId],
+    references: [people.id],
+    relationName: "settlementFrom",
+  }),
+  toPerson: one(people, {
+    fields: [settlements.toPersonId],
+    references: [people.id],
+    relationName: "settlementTo",
   }),
 }));

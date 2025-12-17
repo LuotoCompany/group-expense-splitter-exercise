@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1763538418536,
-      "tag": "0000_fresh_dormammu",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1763662800000,
-      "tag": "0001_settlement_management",
+      "when": 1765976212953,
+      "tag": "0000_furry_namorita",
       "breakpoints": true
     }
   ]
