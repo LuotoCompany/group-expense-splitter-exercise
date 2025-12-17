@@ -5,6 +5,7 @@ FROM node:22-bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # Version control
     git \
+    openssh-client \
     # Tools needed for PostgreSQL repo
     gnupg \
     lsb-release \
