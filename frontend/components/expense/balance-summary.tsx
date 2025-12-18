@@ -39,7 +39,7 @@ export function BalanceSummary({
     router.refresh();
   };
 
-  const handleDeleteSettlement = async (id: string) => {
+  const handleDeleteSettlement = async (id: string | number) => {
     setError(null);
     const result = await deleteSettlement(id);
 
