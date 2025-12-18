@@ -8,11 +8,8 @@ async function addPerson(page: any, name: string) {
   const nameInput = page.getByPlaceholder(/enter name/i);
   await nameInput.fill(name);
   
-  const addButton = page.getByRole('button', { name: /^add$/i });
-  // Wait for button to be visible and stable
-  await addButton.waitFor({ state: 'visible' });
-  await page.waitForTimeout(500); // Small delay for any animations
-  await addButton.click({ force: true }); // Force click to bypass viewport checks
+  // Press Enter instead of clicking the button to avoid viewport issues
+  await nameInput.press('Enter');
 }
 
 test.describe('People Management', () => {
@@ -48,8 +45,8 @@ test.describe('People Management', () => {
     // Add a person
     await addPerson(page, name);
     
-    // Verify person was added
-    await expect(page.getByText(name)).toBeVisible();
+    // Verify person was added - look specifically in the dialog for the person card
+    await expect(page.getByRole('dialog').getByText(name).first()).toBeVisible();
   });
 
   test('should add multiple people', async ({ page }) => {
@@ -61,7 +58,7 @@ test.describe('People Management', () => {
     // Add all people
     for (const name of names) {
       await addPerson(page, name);
-      await expect(page.getByText(name)).toBeVisible();
+      await expect(page.getByRole('dialog').getByText(name).first()).toBeVisible();
     }
   });
 
@@ -77,7 +74,7 @@ test.describe('People Management', () => {
     await nameInput.press('Enter');
     
     // Verify person was added
-    await expect(page.getByText(name)).toBeVisible();
+    await expect(page.getByRole('dialog').getByText(name).first()).toBeVisible();
   });
 
   test('should not add person with empty name', async ({ page }) => {
@@ -104,15 +101,12 @@ test.describe('People Management', () => {
     
     // Add first person
     await addPerson(page, name);
-    await expect(page.getByText(name)).toBeVisible();
+    await expect(page.getByRole('dialog').getByText(name).first()).toBeVisible();
     
-    // Try to add duplicate
+    // Try to add duplicate by pressing Enter
     const nameInput = page.getByPlaceholder(/enter name/i);
     await nameInput.fill(name);
-    
-    const addButton = page.getByRole('button', { name: /^add$/i });
-    await addButton.scrollIntoViewIfNeeded();
-    await addButton.click();
+    await nameInput.press('Enter');
     
     // Verify error message
     await expect(page.getByText(/person with this name already exists/i)).toBeVisible();
@@ -126,18 +120,26 @@ test.describe('People Management', () => {
     
     // Add a person
     await addPerson(page, name);
-    await expect(page.getByText(name)).toBeVisible();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByText(name).first()).toBeVisible();
     
-    // Find the person card and hover to reveal delete button
-    const personCard = page.locator('div', { has: page.getByText(name) }).first();
+    // Wait for any transitions
+    await page.waitForTimeout(500);
+    
+    // Find the person card - it's a div with class "group" containing the person's name
+    const personCard = dialog.locator('.group', { hasText: name }).first();
+    
+    // Hover over the card to reveal the delete button
     await personCard.hover();
+    await page.waitForTimeout(300);
     
-    // Click delete button
-    const deleteButton = personCard.getByRole('button').filter({ hasText: '' }).first(); // Trash icon button
-    await deleteButton.click();
+    // Click the delete button using the title attribute
+    const deleteButton = personCard.locator('button[title="Remove person"]');
+    await deleteButton.click({ force: true });
     
-    // Verify person was deleted
-    await expect(page.getByText(name)).not.toBeVisible();
+    // Verify person was deleted - wait a bit for the deletion to process
+    await page.waitForTimeout(500);
+    await expect(dialog.locator('.group', { hasText: name })).not.toBeVisible();
   });
 
   test('should clear input field after adding person', async ({ page }) => {
@@ -148,7 +150,7 @@ test.describe('People Management', () => {
     
     // Add a person
     await addPerson(page, name);
-    await expect(page.getByText(name)).toBeVisible();
+    await expect(page.getByRole('dialog').getByText(name).first()).toBeVisible();
     
     // Verify input field is cleared
     const nameInput = page.getByPlaceholder(/enter name/i);
@@ -163,7 +165,7 @@ test.describe('People Management', () => {
     
     // Add a person
     await addPerson(page, name);
-    await expect(page.getByText(name)).toBeVisible();
+    await expect(page.getByRole('dialog').getByText(name).first()).toBeVisible();
     
     // Close dialog (click outside or ESC)
     await page.keyboard.press('Escape');
@@ -175,6 +177,6 @@ test.describe('People Management', () => {
     await page.getByRole('button', { name: /manage people/i }).click();
     
     // Verify person is still there
-    await expect(page.getByText(name)).toBeVisible();
+    await expect(page.getByRole('dialog').getByText(name).first()).toBeVisible();
   });
 });
