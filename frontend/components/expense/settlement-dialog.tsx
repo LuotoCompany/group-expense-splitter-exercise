@@ -48,10 +48,14 @@ export function SettlementDialog({
 
   const [isPending, startTransition] = useTransition();
 
+  // Reset form when dialog opens or key props change
   useEffect(() => {
     if (open) {
-      setPaymentDate(formatDateInputValue(defaultDate ?? new Date()));
-      setError(null);
+      // Use a microtask to avoid synchronous setState in effect
+      Promise.resolve().then(() => {
+        setPaymentDate(formatDateInputValue(defaultDate ?? new Date()));
+        setError(null);
+      });
     }
   }, [open, defaultDate, fromPerson.id, toPerson.id, amount]);
 

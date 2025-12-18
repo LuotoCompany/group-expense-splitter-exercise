@@ -19,7 +19,7 @@ const mockPeople: Person[] = [
 ];
 
 export const Default: Story = {
-  render: () => {
+  render: function RenderDefault() {
     const [people, setPeople] = useState(mockPeople);
     return (
       <PersonManager
@@ -36,7 +36,7 @@ export const Default: Story = {
 };
 
 export const Empty: Story = {
-  render: () => {
+  render: function RenderEmpty() {
     const [people, setPeople] = useState<Person[]>([]);
     return (
       <PersonManager
@@ -66,7 +66,7 @@ export const BusyState: Story = {
 };
 
 export const SinglePerson: Story = {
-  render: () => {
+  render: function RenderSinglePerson() {
     const [people, setPeople] = useState([mockPeople[0]]);
     return (
       <PersonManager

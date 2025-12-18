@@ -21,6 +21,7 @@ export function ReceiptModal({ isOpen, receiptImage, onClose }: ReceiptModalProp
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-auto">
         <DialogTitle className="sr-only">Receipt Image</DialogTitle>
         <div className="relative w-full flex items-center justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={receiptImage}
             alt="Receipt"
