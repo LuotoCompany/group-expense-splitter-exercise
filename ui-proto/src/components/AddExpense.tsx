@@ -48,10 +48,19 @@ export function AddExpense({ people, onAddExpense, onAddPerson }: AddExpenseProp
     const amount = parseFloat(totalAmount);
     if (isNaN(amount) || people.length === 0) return;
     
-    const equalAmount = (amount / people.length).toFixed(2);
+    // Calculate splits with last person getting any remaining cents
+    const baseAmount = Math.floor((amount / people.length) * 100) / 100;
     const newSplits: Record<string, string> = {};
-    people.forEach(person => {
-      newSplits[person.id] = equalAmount;
+    
+    people.forEach((person, index) => {
+      if (index === people.length - 1) {
+        // Last person gets the remainder
+        const totalAssigned = baseAmount * (people.length - 1);
+        const remainder = Math.round((amount - totalAssigned) * 100) / 100;
+        newSplits[person.id] = remainder.toFixed(2);
+      } else {
+        newSplits[person.id] = baseAmount.toFixed(2);
+      }
     });
     setSplits(newSplits);
   };
@@ -62,10 +71,19 @@ export function AddExpense({ people, onAddExpense, onAddPerson }: AddExpenseProp
     
     const amount = parseFloat(value);
     if (!isNaN(amount) && amount > 0 && people.length > 0) {
-      const equalAmount = (amount / people.length).toFixed(2);
+      // Calculate splits with last person getting any remaining cents
+      const baseAmount = Math.floor((amount / people.length) * 100) / 100;
       const newSplits: Record<string, string> = {};
-      people.forEach(person => {
-        newSplits[person.id] = equalAmount;
+      
+      people.forEach((person, index) => {
+        if (index === people.length - 1) {
+          // Last person gets the remainder
+          const totalAssigned = baseAmount * (people.length - 1);
+          const remainder = Math.round((amount - totalAssigned) * 100) / 100;
+          newSplits[person.id] = remainder.toFixed(2);
+        } else {
+          newSplits[person.id] = baseAmount.toFixed(2);
+        }
       });
       setSplits(newSplits);
     }
