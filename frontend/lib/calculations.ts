@@ -1,10 +1,4 @@
-import type { Person, Expense, Settlement } from './types';
-
-export interface Balance {
-  from: string;
-  to: string;
-  amount: number;
-}
+import type { Person, Expense, Settlement, Balance } from './types';
 
 /**
  * Calculate outstanding balances between people based on expenses and settlements.
@@ -25,7 +19,7 @@ export function calculateBalances(
   people: Person[],
   settlements: Settlement[]
 ): Balance[] {
-  const balanceMap: Record<string, number> = {};
+  const balanceMap: Record<number, number> = {};
 
   // Initialize all people with 0 balance
   people.forEach(person => {
@@ -45,18 +39,19 @@ export function calculateBalances(
 
   // Process settlements
   settlements.forEach(settlement => {
-    // Person who paid gets negative (they paid off debt)
-    balanceMap[settlement.from] = (balanceMap[settlement.from] || 0) - settlement.amount;
-    // Person who received gets negative (their credit reduced)
-    balanceMap[settlement.to] = (balanceMap[settlement.to] || 0) + settlement.amount;
+    // Person who paid increases their balance (reduces their debt)
+    balanceMap[settlement.from] = (balanceMap[settlement.from] || 0) + settlement.amount;
+    // Person who received decreases their balance (their credit is reduced)
+    balanceMap[settlement.to] = (balanceMap[settlement.to] || 0) - settlement.amount;
   });
 
   // Calculate who owes whom
   const balances: Balance[] = [];
-  const creditors: Array<{ id: string; amount: number }> = [];
-  const debtors: Array<{ id: string; amount: number }> = [];
+  const creditors: Array<{ id: number; amount: number }> = [];
+  const debtors: Array<{ id: number; amount: number }> = [];
 
-  Object.entries(balanceMap).forEach(([personId, balance]) => {
+  Object.entries(balanceMap).forEach(([personIdStr, balance]) => {
+    const personId = Number(personIdStr);
     if (balance > 0.01) {
       creditors.push({ id: personId, amount: balance });
     } else if (balance < -0.01) {
@@ -75,8 +70,8 @@ export function calculateBalances(
       if (remaining > 0.01 && creditor.amount > 0.01) {
         const amount = Math.min(remaining, creditor.amount);
         balances.push({
-          from: debtor.id,
-          to: creditor.id,
+          fromId: debtor.id,
+          toId: creditor.id,
           amount,
         });
         remaining -= amount;
