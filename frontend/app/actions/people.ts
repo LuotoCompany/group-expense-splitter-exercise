@@ -54,7 +54,7 @@ export async function addPerson(name: string): Promise<ActionResponse> {
   }
 }
 
-export async function deletePerson(id: string): Promise<ActionResponse> {
+export async function deletePerson(id: number): Promise<ActionResponse> {
   if (!id) {
     return { success: false, error: "ID is required" };
   }

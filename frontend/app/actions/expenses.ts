@@ -14,7 +14,7 @@ import {
 export interface AddExpensePayload {
   description: string;
   totalAmount: number;
-  paidBy: string;
+  paidBy: number;
   splits: SplitAmountInput[];
   date?: Date;
 }
@@ -26,15 +26,15 @@ export interface ActionResponse<T = void> {
 }
 
 function mapExpenseRow(row: {
-  id: string;
+  id: number;
   description: string;
   totalAmount: string | number;
-  paidBy: string;
+  paidBy: number;
   date: Date | null;
   createdAt: Date | null;
   splits: Array<{
-    id: string;
-    personId: string;
+    id: number;
+    personId: number;
     amount: string | number;
   }>;
 }): Expense {
@@ -136,7 +136,7 @@ export async function addExpense(payload: AddExpensePayload): Promise<ActionResp
   }
 }
 
-export async function deleteExpense(expenseId: string): Promise<ActionResponse> {
+export async function deleteExpense(expenseId: number): Promise<ActionResponse> {
   if (!expenseId) {
     return { success: false, error: "Expense ID is required." };
   }

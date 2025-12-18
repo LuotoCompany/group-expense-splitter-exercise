@@ -35,12 +35,12 @@ export function AddExpenseForm({
 }: AddExpenseFormProps) {
   const [description, setDescription] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
-  const [paidBy, setPaidBy] = useState('');
-  const [splits, setSplits] = useState<Record<string, string>>({});
+  const [paidBy, setPaidBy] = useState<number | null>(null);
+  const [splits, setSplits] = useState<Record<number, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSplitChange = (personId: string, value: string) => {
+  const handleSplitChange = (personId: number, value: string) => {
     setSplits({ ...splits, [personId]: value });
   };
 
@@ -49,7 +49,7 @@ export function AddExpenseForm({
     if (isNaN(amount) || people.length === 0) return;
 
     const equalAmount = (amount / people.length).toFixed(2);
-    const newSplits: Record<string, string> = {};
+    const newSplits: Record<number, string> = {};
     people.forEach(person => {
       newSplits[person.id] = equalAmount;
     });
@@ -63,7 +63,7 @@ export function AddExpenseForm({
     const expenseTotal = parseFloat(totalAmount);
     const expenseSplits = Object.entries(splits)
       .map(([personId, amount]) => ({
-        personId,
+        personId: Number(personId),
         amount: parseFloat(amount) || 0,
       }))
       .filter(split => split.amount > 0);
@@ -71,7 +71,7 @@ export function AddExpenseForm({
     const validation = validateExpenseInput({
       description,
       totalAmount: expenseTotal,
-      paidBy,
+      paidBy: paidBy ?? 0,
       splits: expenseSplits,
     });
 
@@ -85,7 +85,7 @@ export function AddExpenseForm({
       const result = await onSubmit({
         description: description.trim(),
         totalAmount: expenseTotal,
-        paidBy,
+        paidBy: paidBy ?? 0,
         splits: expenseSplits,
       });
 
@@ -96,7 +96,7 @@ export function AddExpenseForm({
 
       setDescription('');
       setTotalAmount('');
-      setPaidBy('');
+      setPaidBy(null);
       setSplits({});
     } catch (error) {
       setFormError(
@@ -143,13 +143,13 @@ export function AddExpenseForm({
 
             <div className="space-y-2">
               <Label htmlFor="paidBy">Paid By</Label>
-              <Select value={paidBy} onValueChange={setPaidBy}>
+              <Select value={paidBy?.toString() ?? ''} onValueChange={(value) => setPaidBy(Number(value))}>
                 <SelectTrigger id="paidBy">
                   <SelectValue placeholder="Select person" />
                 </SelectTrigger>
                 <SelectContent>
                   {people.map(person => (
-                    <SelectItem key={person.id} value={person.id}>
+                    <SelectItem key={person.id} value={person.id.toString()}>
                       {person.name}
                     </SelectItem>
                   ))}
