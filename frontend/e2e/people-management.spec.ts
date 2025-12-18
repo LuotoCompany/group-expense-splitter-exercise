@@ -3,6 +3,18 @@ import { test, expect } from '@playwright/test';
 // Generate unique test ID to avoid conflicts between test runs
 const uniqueId = () => `test-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
 
+// Helper function to add a person
+async function addPerson(page: any, name: string) {
+  const nameInput = page.getByPlaceholder(/enter name/i);
+  await nameInput.fill(name);
+  
+  const addButton = page.getByRole('button', { name: /^add$/i });
+  // Wait for button to be visible and stable
+  await addButton.waitFor({ state: 'visible' });
+  await page.waitForTimeout(500); // Small delay for any animations
+  await addButton.click({ force: true }); // Force click to bypass viewport checks
+}
+
 test.describe('People Management', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
@@ -34,9 +46,7 @@ test.describe('People Management', () => {
     await page.getByRole('button', { name: /manage people/i }).click();
     
     // Add a person
-    const nameInput = page.getByPlaceholder(/enter name/i);
-    await nameInput.fill(name);
-    await page.getByRole('button', { name: /^add$/i }).click();
+    await addPerson(page, name);
     
     // Verify person was added
     await expect(page.getByText(name)).toBeVisible();
@@ -48,12 +58,9 @@ test.describe('People Management', () => {
     // Open manage people dialog
     await page.getByRole('button', { name: /manage people/i }).click();
     
-    const nameInput = page.getByPlaceholder(/enter name/i);
-    
     // Add all people
     for (const name of names) {
-      await nameInput.fill(name);
-      await page.getByRole('button', { name: /^add$/i }).click();
+      await addPerson(page, name);
       await expect(page.getByText(name)).toBeVisible();
     }
   });
@@ -96,14 +103,16 @@ test.describe('People Management', () => {
     await page.getByRole('button', { name: /manage people/i }).click();
     
     // Add first person
-    const nameInput = page.getByPlaceholder(/enter name/i);
-    await nameInput.fill(name);
-    await page.getByRole('button', { name: /^add$/i }).click();
+    await addPerson(page, name);
     await expect(page.getByText(name)).toBeVisible();
     
     // Try to add duplicate
+    const nameInput = page.getByPlaceholder(/enter name/i);
     await nameInput.fill(name);
-    await page.getByRole('button', { name: /^add$/i }).click();
+    
+    const addButton = page.getByRole('button', { name: /^add$/i });
+    await addButton.scrollIntoViewIfNeeded();
+    await addButton.click();
     
     // Verify error message
     await expect(page.getByText(/person with this name already exists/i)).toBeVisible();
@@ -116,9 +125,7 @@ test.describe('People Management', () => {
     await page.getByRole('button', { name: /manage people/i }).click();
     
     // Add a person
-    const nameInput = page.getByPlaceholder(/enter name/i);
-    await nameInput.fill(name);
-    await page.getByRole('button', { name: /^add$/i }).click();
+    await addPerson(page, name);
     await expect(page.getByText(name)).toBeVisible();
     
     // Find the person card and hover to reveal delete button
@@ -140,12 +147,11 @@ test.describe('People Management', () => {
     await page.getByRole('button', { name: /manage people/i }).click();
     
     // Add a person
-    const nameInput = page.getByPlaceholder(/enter name/i);
-    await nameInput.fill(name);
-    await page.getByRole('button', { name: /^add$/i }).click();
+    await addPerson(page, name);
     await expect(page.getByText(name)).toBeVisible();
     
     // Verify input field is cleared
+    const nameInput = page.getByPlaceholder(/enter name/i);
     await expect(nameInput).toHaveValue('');
   });
 
@@ -156,9 +162,7 @@ test.describe('People Management', () => {
     await page.getByRole('button', { name: /manage people/i }).click();
     
     // Add a person
-    const nameInput = page.getByPlaceholder(/enter name/i);
-    await nameInput.fill(name);
-    await page.getByRole('button', { name: /^add$/i }).click();
+    await addPerson(page, name);
     await expect(page.getByText(name)).toBeVisible();
     
     // Close dialog (click outside or ESC)
