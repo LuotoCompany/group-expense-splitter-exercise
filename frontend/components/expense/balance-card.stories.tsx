@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import type { AddSettlementInput, SettlementActionResult } from '@/app/actions/settlements';
+import type { AddSettlementInput, SettlementActionResult } from '@/lib/types';
 import { BalanceCard } from './balance-card';
 
 const mockCreateSettlement = async (

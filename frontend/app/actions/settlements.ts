@@ -2,28 +2,10 @@
 
 import { db } from "@/db/client";
 import { people, settlements } from "@/db/schema";
-import type { Settlement } from "@/lib/types";
+import type { AddSettlementInput, DeleteSettlementResult, Settlement, SettlementActionResult } from "@/lib/types";
 import { InferSelectModel, desc, eq, inArray } from "drizzle-orm";
 
 type SettlementRow = InferSelectModel<typeof settlements>;
-
-export interface SettlementActionResult {
-  success: boolean;
-  settlement?: Settlement;
-  error?: string;
-}
-
-export interface DeleteSettlementResult {
-  success: boolean;
-  error?: string;
-}
-
-export interface AddSettlementInput {
-  fromPersonId: string | number;
-  toPersonId: string | number;
-  amount: number;
-  date?: string | Date;
-}
 
 const toNumberId = (value: string | number): number | null => {
   if (typeof value === "number" && Number.isInteger(value) && value > 0) {

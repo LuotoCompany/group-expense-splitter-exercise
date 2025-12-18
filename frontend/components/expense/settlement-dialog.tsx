@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import type { Settlement } from "@/lib/types";
-import type { SettlementActionResult } from "@/app/actions/settlements";
+import type { Settlement, SettlementActionResult } from "@/lib/types";
 import {
   Dialog,
   DialogContent,

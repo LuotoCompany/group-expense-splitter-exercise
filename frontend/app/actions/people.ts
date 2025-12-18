@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { db } from "@/db/client";
 import { people } from "@/db/schema";
-import type { Person } from "@/lib/types";
+import type { ActionResponse, Person } from "@/lib/types";
 
 export async function listPeople(): Promise<Person[]> {
   const rows = await db
@@ -22,13 +22,6 @@ export async function listPeople(): Promise<Person[]> {
   }));
 }
 
-
-export interface ActionResponse<T = void> {
-  success: boolean;
-  data?: T;
-  error?: string;
-}
-
 export async function addPerson(name: string): Promise<ActionResponse> {
   if (!name || name.trim().length === 0) {
     return { success: false, error: "Name is required" };
@@ -41,9 +34,9 @@ export async function addPerson(name: string): Promise<ActionResponse> {
 
     revalidatePath("/");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Unique constraint violation code for PostgreSQL
-    if (error?.code === "23505") {
+    if (error && typeof error === 'object' && 'code' in error && error.code === "23505") {
       return { success: false, error: "A person with this name already exists" };
     }
     
@@ -63,9 +56,9 @@ export async function deletePerson(id: number): Promise<ActionResponse> {
     await db.delete(people).where(eq(people.id, id));
     revalidatePath("/");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Foreign key violation code for PostgreSQL
-    if (error?.code === "23503") {
+    if (error && typeof error === 'object' && 'code' in error && error.code === "23503") {
       return { 
         success: false, 
         error: "Cannot delete this person because they are part of existing expenses" 
