@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Smoke test', () => {
-  test('renders the landing page with getting started text', async ({ page }) => {
+  test('renders the landing page with track expenses heading', async ({ page }) => {
     await page.goto('/');
 
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('To get started');
-    await expect(page.getByRole('link', { name: 'Deploy Now' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /track expenses and split them fairly/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /manage people/i })).toBeVisible();
   });
 });
 
