@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { cn, splitAmountEqually } from '@/lib/utils';
 import { validateExpenseInput } from '@/lib/validations';
 
 export interface AddExpenseFormProps {
@@ -48,10 +48,10 @@ export function AddExpenseForm({
     const amount = parseFloat(totalAmount);
     if (isNaN(amount) || people.length === 0) return;
 
-    const equalAmount = (amount / people.length).toFixed(2);
+    const splitAmounts = splitAmountEqually(amount, people.length);
     const newSplits: Record<number, string> = {};
-    people.forEach(person => {
-      newSplits[person.id] = equalAmount;
+    people.forEach((person, index) => {
+      newSplits[person.id] = splitAmounts[index].toFixed(2);
     });
     setSplits(newSplits);
   };
