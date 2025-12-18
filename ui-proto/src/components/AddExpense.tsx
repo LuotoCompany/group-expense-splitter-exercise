@@ -8,6 +8,29 @@ interface AddExpenseProps {
   onAddPerson: (name: string) => void;
 }
 
+/**
+ * Split an amount equally among people, assigning any remaining cents to the last person.
+ */
+function calculateEqualSplits(amount: number, people: Person[]): Record<string, string> {
+  if (people.length === 0) return {};
+  
+  const baseAmount = Math.floor((amount / people.length) * 100) / 100;
+  const newSplits: Record<string, string> = {};
+  
+  people.forEach((person, index) => {
+    if (index === people.length - 1) {
+      // Last person gets the remainder
+      const totalAssigned = baseAmount * (people.length - 1);
+      const remainder = Math.round((amount - totalAssigned) * 100) / 100;
+      newSplits[person.id] = remainder.toFixed(2);
+    } else {
+      newSplits[person.id] = baseAmount.toFixed(2);
+    }
+  });
+  
+  return newSplits;
+}
+
 export function AddExpense({ people, onAddExpense, onAddPerson }: AddExpenseProps) {
   const [description, setDescription] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
@@ -48,21 +71,7 @@ export function AddExpense({ people, onAddExpense, onAddPerson }: AddExpenseProp
     const amount = parseFloat(totalAmount);
     if (isNaN(amount) || people.length === 0) return;
     
-    // Calculate splits with last person getting any remaining cents
-    const baseAmount = Math.floor((amount / people.length) * 100) / 100;
-    const newSplits: Record<string, string> = {};
-    
-    people.forEach((person, index) => {
-      if (index === people.length - 1) {
-        // Last person gets the remainder
-        const totalAssigned = baseAmount * (people.length - 1);
-        const remainder = Math.round((amount - totalAssigned) * 100) / 100;
-        newSplits[person.id] = remainder.toFixed(2);
-      } else {
-        newSplits[person.id] = baseAmount.toFixed(2);
-      }
-    });
-    setSplits(newSplits);
+    setSplits(calculateEqualSplits(amount, people));
   };
 
   // Auto-split equally when total amount changes
@@ -71,21 +80,7 @@ export function AddExpense({ people, onAddExpense, onAddPerson }: AddExpenseProp
     
     const amount = parseFloat(value);
     if (!isNaN(amount) && amount > 0 && people.length > 0) {
-      // Calculate splits with last person getting any remaining cents
-      const baseAmount = Math.floor((amount / people.length) * 100) / 100;
-      const newSplits: Record<string, string> = {};
-      
-      people.forEach((person, index) => {
-        if (index === people.length - 1) {
-          // Last person gets the remainder
-          const totalAssigned = baseAmount * (people.length - 1);
-          const remainder = Math.round((amount - totalAssigned) * 100) / 100;
-          newSplits[person.id] = remainder.toFixed(2);
-        } else {
-          newSplits[person.id] = baseAmount.toFixed(2);
-        }
-      });
-      setSplits(newSplits);
+      setSplits(calculateEqualSplits(amount, people));
     }
   };
 
