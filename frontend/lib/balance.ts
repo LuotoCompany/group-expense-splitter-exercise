@@ -40,10 +40,10 @@ export function calculateBalances(
 
   // Process settlements
   settlements.forEach(settlement => {
-    // Person who paid gets negative (they paid off debt)
-    balanceMap[settlement.from] = (balanceMap[settlement.from] || 0) - settlement.amount;
-    // Person who received gets negative (their credit reduced)
-    balanceMap[settlement.to] = (balanceMap[settlement.to] || 0) + settlement.amount;
+    // Person who paid increases their balance (reduces their debt)
+    balanceMap[settlement.from] = (balanceMap[settlement.from] || 0) + settlement.amount;
+    // Person who received decreases their balance (their credit is reduced)
+    balanceMap[settlement.to] = (balanceMap[settlement.to] || 0) - settlement.amount;
   });
 
   // Calculate who owes whom
