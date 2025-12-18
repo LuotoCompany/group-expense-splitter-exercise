@@ -2,11 +2,17 @@ import { Receipt } from "lucide-react";
 
 import { listExpenses } from "@/app/actions/expenses";
 import { listPeople } from "@/app/actions/people";
+import { listSettlements } from "@/app/actions/settlements";
 import { ExpenseManager } from "@/components/expense/expense-manager";
 import { PeopleManagerDialog } from "@/components/expense/people-manager-dialog";
+import { BalanceSummary } from "@/components/expense/balance-summary";
 
 export default async function Home() {
-  const [people, expenses] = await Promise.all([listPeople(), listExpenses()]);
+  const [people, expenses, settlements] = await Promise.all([
+    listPeople(),
+    listExpenses(),
+    listSettlements(),
+  ]);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 py-10 px-4">
@@ -38,8 +44,18 @@ export default async function Home() {
           </div>
         </header>
 
-        <div className="rounded-2xl bg-white p-6 shadow-sm">
-          <ExpenseManager people={people} expenses={expenses} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <ExpenseManager people={people} expenses={expenses} />
+          </div>
+
+          <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <BalanceSummary
+              expenses={expenses}
+              people={people}
+              settlements={settlements}
+            />
+          </div>
         </div>
       </div>
     </main>
