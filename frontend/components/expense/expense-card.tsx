@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 export interface ExpenseCardProps {
   expense: Expense;
   people: Person[];
-  onDelete: (id: string) => void | Promise<void>;
+  onDelete: (id: number) => void | Promise<void>;
   onReceiptClick?: (image: string) => void;
   className?: string;
   isDeleting?: boolean;
@@ -31,7 +31,7 @@ export function ExpenseCard({
   className,
   isDeleting = false,
 }: ExpenseCardProps) {
-  const getPersonName = (personId: string) => {
+  const getPersonName = (personId: number) => {
     return people.find(p => p.id === personId)?.name || 'Unknown';
   };
 
