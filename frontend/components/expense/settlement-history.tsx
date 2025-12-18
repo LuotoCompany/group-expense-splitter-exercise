@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 export interface SettlementHistoryProps {
   settlements: Settlement[];
   people: Person[];
-  onDelete: (id: string) => Promise<void> | void;
+  onDelete: (id: string | number) => Promise<void> | void;
   className?: string;
 }
 
@@ -26,11 +26,12 @@ export function SettlementHistory({
   onDelete,
   className,
 }: SettlementHistoryProps) {
-  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [pendingId, setPendingId] = useState<string | number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const getPersonName = (personId: string) => {
-    return people.find(p => p.id === personId)?.name || 'Unknown';
+  const getPersonName = (personId: number | string) => {
+    const id = typeof personId === 'string' ? Number(personId) : personId;
+    return people.find(p => p.id === id)?.name || 'Unknown';
   };
 
   const formatter = useMemo(
@@ -43,7 +44,7 @@ export function SettlementHistory({
     []
   );
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: string | number) => {
     setError(null);
     const result = onDelete(id);
     if (result && typeof result.then === 'function') {

@@ -93,7 +93,7 @@ export async function addExpense(payload: AddExpensePayload): Promise<ActionResp
         .insert(expenses)
         .values({
           description: payload.description.trim(),
-          totalAmount: payload.totalAmount,
+          totalAmount: payload.totalAmount.toString(),
           paidBy: payload.paidBy,
           date: payload.date ?? new Date(),
         })
@@ -105,7 +105,7 @@ export async function addExpense(payload: AddExpensePayload): Promise<ActionResp
         payload.splits.map(split => ({
           expenseId: newExpense.id,
           personId: split.personId,
-          amount: split.amount,
+          amount: split.amount.toString(),
         }))
       );
     });

@@ -33,6 +33,14 @@ const toDateOnly = (value?: string | Date): Date => {
   );
 };
 
+const toDateString = (date: Date): string => {
+  // Format as YYYY-MM-DD for Postgres DATE type
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const mapSettlement = (row: SettlementRow): Settlement => ({
   id: row.id,
   from: row.fromPersonId,
@@ -101,8 +109,8 @@ export async function addSettlement(
     .values({
       fromPersonId: fromId,
       toPersonId: toId,
-      amount,
-      date: normalizedDate,
+      amount: amount.toString(),
+      date: toDateString(normalizedDate),
     })
     .returning();
 
