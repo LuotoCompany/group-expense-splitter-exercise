@@ -123,21 +123,14 @@ test.describe('People Management', () => {
     const dialog = page.getByRole('dialog');
     await expect(dialog.getByText(name).first()).toBeVisible();
     
-    // Wait for any transitions
-    await page.waitForTimeout(500);
+    // Find and click the delete button by its sr-only text
+    // The button has <span class="sr-only">Remove {person.name}</span>
+    const deleteButton = dialog.getByRole('button', { name: new RegExp(`Remove ${name}`, 'i') });
     
-    // Find the person card - it's a div with class "group" containing the person's name
-    const personCard = dialog.locator('.group', { hasText: name }).first();
-    
-    // Hover over the card to reveal the delete button
-    await personCard.hover();
-    await page.waitForTimeout(300);
-    
-    // Click the delete button using the title attribute
-    const deleteButton = personCard.locator('button[title="Remove person"]');
+    // Force click to bypass opacity and hover issues
     await deleteButton.click({ force: true });
     
-    // Verify person was deleted - wait a bit for the deletion to process
+    // Verify person was deleted - wait for removal animation
     await page.waitForTimeout(500);
     await expect(dialog.locator('.group', { hasText: name })).not.toBeVisible();
   });
