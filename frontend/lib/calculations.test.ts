@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateBalances } from './balance';
+import { calculateBalances } from './calculations';
 import type { Expense, Person, Settlement } from './types';
 
 describe('calculateBalances', () => {

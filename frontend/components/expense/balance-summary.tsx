@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Users, CheckCircle } from 'lucide-react';
 import type { Expense, Person, Settlement } from '@/lib/types';
-import { calculateBalances } from '@/lib/balance';
+import { calculateBalances } from '@/lib/calculations';
 import { BalanceCard } from '@/components/expense/balance-card';
 import { SettlementHistory } from '@/components/expense/settlement-history';
 import { deleteSettlement } from '@/app/actions/settlements';
