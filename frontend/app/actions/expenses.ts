@@ -7,7 +7,6 @@ import { db } from "@/db/client";
 import { expenses, people, splits } from "@/db/schema";
 import type { ActionResponse, AddExpensePayload, Expense } from "@/lib/types";
 import {
-  type SplitAmountInput,
   validateExpenseInput,
 } from "@/lib/validations";
 

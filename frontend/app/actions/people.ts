@@ -34,9 +34,9 @@ export async function addPerson(name: string): Promise<ActionResponse> {
 
     revalidatePath("/");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Unique constraint violation code for PostgreSQL
-    if (error?.code === "23505") {
+    if (error && typeof error === 'object' && 'code' in error && error.code === "23505") {
       return { success: false, error: "A person with this name already exists" };
     }
     
@@ -56,9 +56,9 @@ export async function deletePerson(id: number): Promise<ActionResponse> {
     await db.delete(people).where(eq(people.id, id));
     revalidatePath("/");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Foreign key violation code for PostgreSQL
-    if (error?.code === "23503") {
+    if (error && typeof error === 'object' && 'code' in error && error.code === "23503") {
       return { 
         success: false, 
         error: "Cannot delete this person because they are part of existing expenses" 

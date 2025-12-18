@@ -1,10 +1,10 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 // Generate unique test ID to avoid conflicts between test runs
 const uniqueId = () => `test-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
 
 // Helper function to add a person
-async function addPerson(page: any, name: string) {
+async function addPerson(page: Page, name: string) {
   const nameInput = page.getByPlaceholder(/enter name/i);
   await nameInput.fill(name);
   
