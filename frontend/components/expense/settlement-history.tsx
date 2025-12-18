@@ -31,6 +31,10 @@ export function SettlementHistory({
 
   const getPersonName = (personId: number | string) => {
     const id = typeof personId === 'string' ? Number(personId) : personId;
+    // If conversion results in NaN or invalid number, return 'Unknown'
+    if (!Number.isFinite(id)) {
+      return 'Unknown';
+    }
     return people.find(p => p.id === id)?.name || 'Unknown';
   };
 
