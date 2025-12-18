@@ -210,7 +210,7 @@ export function AddExpenseForm({
           onClick={() => {
             setDescription('');
             setTotalAmount('');
-            setPaidBy('');
+            setPaidBy(null);
             setSplits({});
             setFormError(null);
           }}

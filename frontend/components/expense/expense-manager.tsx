@@ -17,7 +17,7 @@ export interface ExpenseManagerProps {
 export function ExpenseManager({ people, expenses }: ExpenseManagerProps) {
   const router = useRouter();
   const [listError, setListError] = useState<string | null>(null);
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
 
   const handleAddExpense: AddExpenseFormProps['onSubmit'] = async expenseInput => {
     setListError(null);
@@ -30,7 +30,7 @@ export function ExpenseManager({ people, expenses }: ExpenseManagerProps) {
     return result;
   };
 
-  const handleDeleteExpense = async (expenseId: string) => {
+  const handleDeleteExpense = async (expenseId: number) => {
     setListError(null);
     setPendingDeleteId(expenseId);
     const result = await deleteExpense(expenseId);
