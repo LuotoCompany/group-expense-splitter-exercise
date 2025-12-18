@@ -13,7 +13,7 @@ export default meta;
 type Story = StoryObj<typeof ReceiptModal>;
 
 export const Default: Story = {
-  render: () => {
+  render: function RenderDefault() {
     const [open, setOpen] = useState(false);
     return (
       <>
@@ -29,7 +29,7 @@ export const Default: Story = {
 };
 
 export const WideReceipt: Story = {
-  render: () => {
+  render: function RenderWideReceipt() {
     const [open, setOpen] = useState(false);
     return (
       <>
@@ -45,7 +45,7 @@ export const WideReceipt: Story = {
 };
 
 export const TallReceipt: Story = {
-  render: () => {
+  render: function RenderTallReceipt() {
     const [open, setOpen] = useState(false);
     return (
       <>
