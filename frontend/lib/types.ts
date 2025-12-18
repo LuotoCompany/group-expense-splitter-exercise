@@ -39,3 +39,29 @@ export interface ActionResponse<T = void> {
   data?: T;
   error?: string;
 }
+
+export interface SettlementActionResult {
+  success: boolean;
+  settlement?: Settlement;
+  error?: string;
+}
+
+export interface DeleteSettlementResult {
+  success: boolean;
+  error?: string;
+}
+
+export interface AddSettlementInput {
+  fromPersonId: string | number;
+  toPersonId: string | number;
+  amount: number;
+  date?: string | Date;
+}
+
+export interface AddExpensePayload {
+  description: string;
+  totalAmount: number;
+  paidBy: number;
+  splits: Array<{ personId: number; amount: number }>;
+  date?: Date;
+}

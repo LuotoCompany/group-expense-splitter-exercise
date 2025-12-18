@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { db } from "@/db/client";
 import { people } from "@/db/schema";
-import type { Person } from "@/lib/types";
+import type { ActionResponse, Person } from "@/lib/types";
 
 export async function listPeople(): Promise<Person[]> {
   const rows = await db
@@ -20,13 +20,6 @@ export async function listPeople(): Promise<Person[]> {
     id: row.id,
     name: row.name,
   }));
-}
-
-
-export interface ActionResponse<T = void> {
-  success: boolean;
-  data?: T;
-  error?: string;
 }
 
 export async function addPerson(name: string): Promise<ActionResponse> {

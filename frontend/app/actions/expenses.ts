@@ -5,25 +5,11 @@ import { desc, eq, inArray } from "drizzle-orm";
 
 import { db } from "@/db/client";
 import { expenses, people, splits } from "@/db/schema";
-import type { Expense } from "@/lib/types";
+import type { ActionResponse, AddExpensePayload, Expense } from "@/lib/types";
 import {
   type SplitAmountInput,
   validateExpenseInput,
 } from "@/lib/validations";
-
-export interface AddExpensePayload {
-  description: string;
-  totalAmount: number;
-  paidBy: number;
-  splits: SplitAmountInput[];
-  date?: Date;
-}
-
-export interface ActionResponse<T = void> {
-  success: boolean;
-  data?: T;
-  error?: string;
-}
 
 function mapExpenseRow(row: {
   id: number;
